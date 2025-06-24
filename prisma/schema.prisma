@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lobby {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   Member[]
+  expenses  Expense[]
+  deposits  Deposit[]
+
+  @@map("lobbies")
+}
+
+model Member {
+  id                 String @id @default(cuid())
+  name               String
+  isLeader           Boolean @default(false)
+  initialDeposit     Float   @default(0)
+  additionalDeposits Float   @default(0)
+  individualExpenses Float   @default(0)
+  
+  lobbyId String
+  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+
+  deposits                Deposit[]
+  expenseIndividualItems  ExpenseIndividual[] @relation("MemberExpenseIndividuals")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("members")
+}
+
+model Expense {
+  id            String      @id @default(cuid())
+  type          ExpenseType
+  description   String
+  totalAmount   Float
+  perPersonAmount Float?
+  timestamp     DateTime    @default(now())
+
+  lobbyId String
+  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+
+  individualExpenses ExpenseIndividual[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("expenses")
+}
+
+model ExpenseIndividual {
+  id       String @id @default(cuid())
+  amount   Float
+
+  expenseId String
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   Member @relation("MemberExpenseIndividuals", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, memberId])
+  @@map("expense_individuals")
+}
+
+model Deposit {
+  id          String      @id @default(cuid())
+  amount      Float
+  type        DepositType
+  description String?
+  timestamp   DateTime    @default(now())
+
+  lobbyId String
+  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("deposits")
+}
+
+enum ExpenseType {
+  GROUP
+  INDIVIDUAL
+}
+
+enum DepositType {
+  INITIAL
+  ADDITIONAL
+}
