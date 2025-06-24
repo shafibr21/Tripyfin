@@ -3,8 +3,10 @@ import { createDeposit, createInitialDepositsForAllMembers } from "@/lib/db/depo
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { params } = context // Ensure params are resolved correctly
+  console.log(params)
   try {
     const { type, amount, memberId, memberIds, description } = await request.json()
 
