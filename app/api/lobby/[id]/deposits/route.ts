@@ -1,12 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { createDeposit, createInitialDepositsForAllMembers } from "@/lib/db/deposit"
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { params } = context // Ensure params are resolved correctly
-  console.log(params)
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { type, amount, memberId, memberIds, description } = await request.json()
 
@@ -15,9 +10,11 @@ export async function POST(
     }
 
     if (type === "INITIAL" && memberIds && Array.isArray(memberIds)) {
+      // Create initial deposits for all members
       const deposits = await createInitialDepositsForAllMembers(params.id, memberIds, amount)
       return NextResponse.json(deposits)
     } else if (memberId) {
+      // Create individual deposit
       const deposit = await createDeposit(params.id, memberId, amount, type, description)
       return NextResponse.json(deposit)
     } else {
