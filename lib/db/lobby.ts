@@ -58,7 +58,8 @@ export async function updateMemberDeposits(
   initialDeposit?: number,
   additionalDeposits?: number,
 ): Promise<Member> {
-  const updateData: any = {}
+  const updateData: Partial<Pick<Member, "initialDeposit" | "additionalDeposits">> = {}
+
   if (initialDeposit !== undefined) updateData.initialDeposit = initialDeposit
   if (additionalDeposits !== undefined) updateData.additionalDeposits = additionalDeposits
 
