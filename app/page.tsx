@@ -1,103 +1,157 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { Suspense } from "react"
+import { PageLayout } from "@/components/layout/page-layout"
+import { LoadingLayout } from "@/components/layout/loading-layout"
+import { LobbyCreation } from "@/components/lobby/lobby-creation"
+import { LobbyHeader } from "@/components/lobby/lobby-header"
+import { MemberManagement } from "@/components/members/member-management"
+import { IndividualStatus } from "@/components/status/individual-status"
+import { ExpenseForm } from "@/components/expenses/expense-form"
+import { TransactionHistory } from "@/components/transaction-history"
+import { DepositModalComponent } from "@/components/deposit-modal"
+import { TransactionDetailModal } from "@/components/transaction-detail-modal"
+import { useTravelLobbyDb } from "@/hooks/use-travel-lobby-db"
+import { calculateTotalBalance, calculateTotalRequiredContribution } from "@/utils/calculations"
+
+function TravelExpenseTrackerContent() {
+  const {
+    // State
+    lobbyName,
+    setLobbyName,
+    members,
+    expenses,
+    deposits,
+    newMemberName,
+    setNewMemberName,
+    depositAmount,
+    setDepositAmount,
+    isLobbyCreated,
+    hasDeposited,
+    depositModal,
+    additionalDepositAmount,
+    setAdditionalDepositAmount,
+    transactionDetail,
+    expenseType,
+    setExpenseType,
+    expenseDescription,
+    setExpenseDescription,
+    groupExpenseAmount,
+    setGroupExpenseAmount,
+    individualExpenses,
+    setIndividualExpenses,
+    loading,
+    currentLobbyId,
+
+    // Actions
+    createLobby,
+    addMember,
+    collectDeposits,
+    addGroupExpense,
+    addIndividualExpense,
+    openDepositModal,
+    closeDepositModal,
+    addAdditionalDeposit,
+    openTransactionDetail,
+    closeTransactionDetail,
+  } = useTravelLobbyDb()
+
+  const totalBalance = calculateTotalBalance(members, expenses)
+  const totalRequiredContribution = calculateTotalRequiredContribution(members, expenses)
+
+  if (loading && !isLobbyCreated) {
+    return <LoadingLayout message="Setting up your lobby..." />
+  }
+
+  if (!isLobbyCreated) {
+    return (
+      <LobbyCreation lobbyName={lobbyName} setLobbyName={setLobbyName} onCreateLobby={createLobby} loading={loading} />
+    )
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <PageLayout>
+      <LobbyHeader lobbyName={lobbyName} totalBalance={totalBalance} lobbyId={currentLobbyId} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Members & Individual Status */}
+        <div className="space-y-6">
+          <MemberManagement
+            members={members}
+            newMemberName={newMemberName}
+            setNewMemberName={setNewMemberName}
+            onAddMember={addMember}
+            hasDeposited={hasDeposited}
+            depositAmount={depositAmount}
+            setDepositAmount={setDepositAmount}
+            onCollectDeposits={collectDeposits}
+            loading={loading}
+          />
+
+          {hasDeposited && (
+            <IndividualStatus
+              members={members}
+              expenses={expenses}
+              totalRequiredContribution={totalRequiredContribution}
+              onOpenDepositModal={openDepositModal}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+
+        {/* Middle Column - Add Expenses */}
+        <div className="space-y-6">
+          {hasDeposited && (
+            <ExpenseForm
+              expenseType={expenseType}
+              setExpenseType={setExpenseType}
+              expenseDescription={expenseDescription}
+              setExpenseDescription={setExpenseDescription}
+              groupExpenseAmount={groupExpenseAmount}
+              setGroupExpenseAmount={setGroupExpenseAmount}
+              individualExpenses={individualExpenses}
+              setIndividualExpenses={setIndividualExpenses}
+              members={members}
+              onAddGroupExpense={addGroupExpense}
+              onAddIndividualExpense={addIndividualExpense}
+              loading={loading}
+            />
+          )}
+        </div>
+
+        {/* Right Column - Transaction History */}
+        <div className="space-y-6">
+          {(expenses.length > 0 || deposits.length > 0) && (
+            <TransactionHistory
+              expenses={expenses}
+              deposits={deposits}
+              onOpenTransactionDetail={openTransactionDetail}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Modals */}
+      <DepositModalComponent
+        depositModal={depositModal}
+        additionalDepositAmount={additionalDepositAmount}
+        setAdditionalDepositAmount={setAdditionalDepositAmount}
+        onAddAdditionalDeposit={addAdditionalDeposit}
+        onCloseDepositModal={closeDepositModal}
+      />
+
+      <TransactionDetailModal
+        transactionDetail={transactionDetail}
+        members={members}
+        onCloseTransactionDetail={closeTransactionDetail}
+      />
+    </PageLayout>
+  )
+}
+
+export default function TravelExpenseTracker() {
+  return (
+    <Suspense fallback={<LoadingLayout />}>
+      <TravelExpenseTrackerContent />
+    </Suspense>
+  )
 }
