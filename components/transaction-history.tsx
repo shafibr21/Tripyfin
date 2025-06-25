@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Receipt, Wallet } from "lucide-react"
 import type { Expense, DepositRecord } from "@/types"
 import { calculateTotalExpenses, calculateTotalDeposits } from "@/utils/calculations"
 
@@ -42,7 +44,11 @@ export function TransactionHistory({ expenses, deposits, onOpenTransactionDetail
             </div>
 
             {expenses.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">No expenses recorded yet</div>
+              <EmptyState
+                icon={<Receipt className="h-8 w-8" />}
+                title="No expenses yet"
+                description="Start adding expenses to track your spending"
+              />
             ) : (
               <div className="space-y-3">
                 {expenses
@@ -85,7 +91,11 @@ export function TransactionHistory({ expenses, deposits, onOpenTransactionDetail
             </div>
 
             {deposits.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">No deposits recorded yet</div>
+              <EmptyState
+                icon={<Wallet className="h-8 w-8" />}
+                title="No deposits yet"
+                description="Deposits will appear here once members start contributing"
+              />
             ) : (
               <div className="space-y-3">
                 {deposits

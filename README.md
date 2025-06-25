@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travel Expense Tracker
 
-## Getting Started
+A comprehensive travel expense tracking application built with Next.js, PostgreSQL, Prisma, and NextAuth.js.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **User Authentication** - Email/password and OAuth (Google, GitHub)
+- **Lobby Management** - Create and manage travel expense lobbies
+- **Member Management** - Add friends and track individual balances
+- **Expense Tracking** - Group and individual expenses
+- **Deposit System** - Initial and additional deposits
+- **Real-time Calculations** - Automatic balance updates
+- **Transaction History** - Complete audit trail
+- **Responsive Design** - Works on all devices
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Live Demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+[Visit the live app](https://your-app-name.vercel.app)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL (Neon/Supabase)
+- **Authentication**: NextAuth.js
+- **Deployment**: Vercel
+- **UI Components**: Radix UI
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Quick Start
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repository**
+   \`\`\`bash
+   git clone <your-repo-url>
+   cd travel-expense-tracker
+   \`\`\`
 
-## Deploy on Vercel
+2. **Install dependencies**
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables**
+   \`\`\`bash
+   cp .env.example .env
+   \`\`\`
+   Update the \`.env\` file with your database URL and other settings.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Set up the database**
+   \`\`\`bash
+   npx prisma db push
+   \`\`\`
+
+5. **Start the development server**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+
+### Deploy to Vercel
+
+1. **Push to GitHub**
+   \`\`\`bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   \`\`\`
+
+2. **Deploy with Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Set environment variables
+   - Deploy!
+
+   Or use the CLI:
+   \`\`\`bash
+   npm install -g vercel
+   vercel
+   \`\`\`
+
+## 🔧 Environment Variables
+
+### Required
+- \`DATABASE_URL\` - PostgreSQL connection string
+- \`NEXTAUTH_SECRET\` - Secret for NextAuth.js
+- \`NEXTAUTH_URL\` - Your app's URL
+
+### Optional (for OAuth)
+- \`GOOGLE_CLIENT_ID\` & \`GOOGLE_CLIENT_SECRET\`
+- \`GITHUB_ID\` & \`GITHUB_SECRET\`
+
+## 📖 Documentation
+
+- [Deployment Guide](./DEPLOYMENT.md)
+- [Database Setup](./SETUP.md)
+- [API Documentation](./docs/API.md)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+## 🆘 Support
+
+- [GitHub Issues](https://github.com/your-username/travel-expense-tracker/issues)
+- [Documentation](./docs/)
+- [Deployment Guide](./DEPLOYMENT.md)
+
+---
+
+Built with ❤️ using Next.js and Vercel

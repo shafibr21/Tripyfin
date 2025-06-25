@@ -11,12 +11,18 @@ export type LobbyWithDetails = Lobby & {
     }[]
   })[]
   deposits: Deposit[]
+  owner: {
+    id: string
+    name: string | null
+    email: string
+  }
 }
 
-export async function createLobby(name: string): Promise<Lobby> {
+export async function createLobby(name: string, ownerId: string): Promise<Lobby> {
   return await prisma.lobby.create({
     data: {
       name,
+      ownerId,
     },
   })
 }
@@ -25,6 +31,13 @@ export async function getLobbyById(id: string): Promise<LobbyWithDetails | null>
   return await prisma.lobby.findUnique({
     where: { id },
     include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
       members: true,
       expenses: {
         include: {
@@ -43,12 +56,57 @@ export async function getLobbyById(id: string): Promise<LobbyWithDetails | null>
   })
 }
 
-export async function addMemberToLobby(lobbyId: string, name: string, isLeader = false): Promise<Member> {
+export async function getUserLobbies(userId: string): Promise<
+  (Lobby & {
+    owner: { name: string | null; email: string }
+    _count: { members: number; expenses: number }
+  })[]
+> {
+  return await prisma.lobby.findMany({
+    where: {
+      OR: [
+        { ownerId: userId },
+        {
+          members: {
+            some: {
+              userId: userId,
+            },
+          },
+        },
+      ],
+    },
+    include: {
+      owner: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      _count: {
+        select: {
+          members: true,
+          expenses: true,
+        },
+      },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  })
+}
+
+export async function addMemberToLobby(
+  lobbyId: string,
+  name: string,
+  isLeader = false,
+  userId?: string,
+): Promise<Member> {
   return await prisma.member.create({
     data: {
       name,
       isLeader,
       lobbyId,
+      userId,
     },
   })
 }
@@ -58,8 +116,7 @@ export async function updateMemberDeposits(
   initialDeposit?: number,
   additionalDeposits?: number,
 ): Promise<Member> {
-  const updateData: Partial<Pick<Member, "initialDeposit" | "additionalDeposits">> = {}
-
+  const updateData: any = {}
   if (initialDeposit !== undefined) updateData.initialDeposit = initialDeposit
   if (additionalDeposits !== undefined) updateData.additionalDeposits = additionalDeposits
 

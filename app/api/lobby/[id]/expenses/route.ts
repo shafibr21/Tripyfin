@@ -1,8 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createGroupExpense, createIndividualExpense } from "@/lib/db/expense"
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+interface RouteParams {
+  params: Promise<{ id: string }>
+}
+
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params
     const { type, description, perPersonAmount, memberCount, individualAmounts } = await request.json()
 
     if (!type || !description) {
@@ -18,12 +23,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           { status: 400 },
         )
       }
-      expense = await createGroupExpense(params.id, description, perPersonAmount, memberCount)
+      expense = await createGroupExpense(id, description, perPersonAmount, memberCount)
     } else if (type === "INDIVIDUAL") {
       if (!individualAmounts || !Array.isArray(individualAmounts)) {
         return NextResponse.json({ error: "Individual amounts are required for individual expenses" }, { status: 400 })
       }
-      expense = await createIndividualExpense(params.id, description, individualAmounts)
+      expense = await createIndividualExpense(id, description, individualAmounts)
     } else {
       return NextResponse.json({ error: "Invalid expense type" }, { status: 400 })
     }

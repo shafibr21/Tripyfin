@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useCallback } from "react"
 import { apiClient } from "@/lib/api-client"
 import type { Member, Expense, DepositRecord, TransactionDetail, DepositModal } from "@/types"
 import type { ApiMember, ApiExpense, ApiDeposit } from "@/types/api"
@@ -20,9 +19,12 @@ function transformApiMember(apiMember: ApiMember): Member {
 
 function transformApiExpense(apiExpense: ApiExpense): Expense {
   const individualAmounts: { [memberId: string]: number } = {}
-  apiExpense.individualExpenses.forEach((ie) => {
-    individualAmounts[ie.memberId] = ie.amount
-  })
+
+  if (apiExpense.individualExpenses) {
+    apiExpense.individualExpenses.forEach((ie) => {
+      individualAmounts[ie.memberId] = ie.amount
+    })
+  }
 
   return {
     id: apiExpense.id,
@@ -34,6 +36,7 @@ function transformApiExpense(apiExpense: ApiExpense): Expense {
     timestamp: new Date(apiExpense.timestamp),
   }
 }
+
 
 function transformApiDeposit(apiDeposit: ApiDeposit, members: Member[]): DepositRecord {
   const member = members.find((m) => m.id === apiDeposit.memberId)
@@ -49,17 +52,12 @@ function transformApiDeposit(apiDeposit: ApiDeposit, members: Member[]): Deposit
 }
 
 export function useTravelLobbyDb() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const lobbyId = searchParams.get("lobby")
-
   const [lobbyName, setLobbyName] = useState("")
   const [members, setMembers] = useState<Member[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [deposits, setDeposits] = useState<DepositRecord[]>([])
   const [newMemberName, setNewMemberName] = useState("")
   const [depositAmount, setDepositAmount] = useState("")
-  const [isLobbyCreated, setIsLobbyCreated] = useState(false)
   const [hasDeposited, setHasDeposited] = useState(false)
   const [additionalDepositAmount, setAdditionalDepositAmount] = useState("")
   const [loading, setLoading] = useState(false)
@@ -83,21 +81,13 @@ export function useTravelLobbyDb() {
   const [groupExpenseAmount, setGroupExpenseAmount] = useState("")
   const [individualExpenses, setIndividualExpenses] = useState<{ [key: string]: string }>({})
 
-  // Load lobby data if lobbyId exists in URL
-  useEffect(() => {
-    if (lobbyId) {
-      loadLobby(lobbyId)
-    }
-  }, [lobbyId])
-
-  const loadLobby = async (id: string) => {
+  const loadLobby = useCallback(async (id: string) => {
     try {
       setLoading(true)
       const lobby = await apiClient.getLobby(id)
 
       setLobbyName(lobby.name)
       setCurrentLobbyId(lobby.id)
-      setIsLobbyCreated(true)
 
       const transformedMembers = lobby.members.map(transformApiMember)
       setMembers(transformedMembers)
@@ -111,28 +101,11 @@ export function useTravelLobbyDb() {
       setHasDeposited(transformedMembers.some((m) => m.initialDeposit > 0))
     } catch (error) {
       console.error("Failed to load lobby:", error)
+      throw error
     } finally {
       setLoading(false)
     }
-  }
-
-  const createLobby = async () => {
-    if (!lobbyName.trim()) return
-
-    try {
-      setLoading(true)
-      const lobby = await apiClient.createLobby(lobbyName)
-      setCurrentLobbyId(lobby.id)
-      setIsLobbyCreated(true)
-
-      // Update URL with lobby ID
-      router.push(`?lobby=${lobby.id}`)
-    } catch (error) {
-      console.error("Failed to create lobby:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [])
 
   const addMember = async () => {
     if (!newMemberName.trim() || !currentLobbyId) return
@@ -147,6 +120,7 @@ export function useTravelLobbyDb() {
       setNewMemberName("")
     } catch (error) {
       console.error("Failed to add member:", error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -176,6 +150,7 @@ export function useTravelLobbyDb() {
       setDepositAmount("")
     } catch (error) {
       console.error("Failed to collect deposits:", error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -195,6 +170,7 @@ export function useTravelLobbyDb() {
       setGroupExpenseAmount("")
     } catch (error) {
       console.error("Failed to add group expense:", error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -234,6 +210,7 @@ export function useTravelLobbyDb() {
       setIndividualExpenses({})
     } catch (error) {
       console.error("Failed to add individual expense:", error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -275,6 +252,7 @@ export function useTravelLobbyDb() {
       closeDepositModal()
     } catch (error) {
       console.error("Failed to add additional deposit:", error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -291,7 +269,6 @@ export function useTravelLobbyDb() {
   return {
     // State
     lobbyName,
-    setLobbyName,
     members,
     expenses,
     deposits,
@@ -299,7 +276,6 @@ export function useTravelLobbyDb() {
     setNewMemberName,
     depositAmount,
     setDepositAmount,
-    isLobbyCreated,
     hasDeposited,
     depositModal,
     additionalDepositAmount,
@@ -317,7 +293,6 @@ export function useTravelLobbyDb() {
     currentLobbyId,
 
     // Actions
-    createLobby,
     addMember,
     collectDeposits,
     addGroupExpense,

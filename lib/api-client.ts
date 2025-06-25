@@ -13,7 +13,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to create lobby")
+      const error = await response.json().catch(() => ({ error: "Failed to create lobby" }))
+      throw new Error(error.error || "Failed to create lobby")
     }
 
     return response.json()
@@ -23,7 +24,8 @@ class ApiClient {
     const response = await fetch(`${this.baseUrl}/lobby/${id}`)
 
     if (!response.ok) {
-      throw new Error("Failed to fetch lobby")
+      const error = await response.json().catch(() => ({ error: "Failed to fetch lobby" }))
+      throw new Error(error.error || "Failed to fetch lobby")
     }
 
     return response.json()
@@ -39,7 +41,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to add member")
+      const error = await response.json().catch(() => ({ error: "Failed to add member" }))
+      throw new Error(error.error || "Failed to add member")
     }
 
     return response.json()
@@ -59,7 +62,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to create initial deposits")
+      const error = await response.json().catch(() => ({ error: "Failed to create initial deposits" }))
+      throw new Error(error.error || "Failed to create initial deposits")
     }
 
     return response.json()
@@ -85,7 +89,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to create additional deposit")
+      const error = await response.json().catch(() => ({ error: "Failed to create additional deposit" }))
+      throw new Error(error.error || "Failed to create additional deposit")
     }
 
     return response.json()
@@ -111,7 +116,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to create group expense")
+      const error = await response.json().catch(() => ({ error: "Failed to create group expense" }))
+      throw new Error(error.error || "Failed to create group expense")
     }
 
     return response.json()
@@ -135,7 +141,8 @@ class ApiClient {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to create individual expense")
+      const error = await response.json().catch(() => ({ error: "Failed to create individual expense" }))
+      throw new Error(error.error || "Failed to create individual expense")
     }
 
     return response.json()

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Wallet } from "lucide-react"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import type { DepositModal } from "@/types"
 
 interface DepositModalProps {
@@ -13,6 +14,7 @@ interface DepositModalProps {
   setAdditionalDepositAmount: (amount: string) => void
   onAddAdditionalDeposit: () => void
   onCloseDepositModal: () => void
+  loading?: boolean
 }
 
 export function DepositModalComponent({
@@ -21,6 +23,7 @@ export function DepositModalComponent({
   setAdditionalDepositAmount,
   onAddAdditionalDeposit,
   onCloseDepositModal,
+  loading,
 }: DepositModalProps) {
   if (!depositModal.isOpen) return null
 
@@ -41,14 +44,24 @@ export function DepositModalComponent({
               value={additionalDepositAmount}
               onChange={(e) => setAdditionalDepositAmount(e.target.value)}
               autoFocus
+              disabled={loading}
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={onAddAdditionalDeposit} className="flex-1" disabled={!additionalDepositAmount}>
-              <Wallet className="mr-2 h-4 w-4" />
-              Add Deposit
+            <Button onClick={onAddAdditionalDeposit} className="flex-1" disabled={!additionalDepositAmount || loading}>
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Add Deposit
+                </>
+              )}
             </Button>
-            <Button onClick={onCloseDepositModal} variant="outline" className="flex-1">
+            <Button onClick={onCloseDepositModal} variant="outline" className="flex-1" disabled={loading}>
               Cancel
             </Button>
           </div>
