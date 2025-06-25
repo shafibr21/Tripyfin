@@ -19,12 +19,9 @@ function transformApiMember(apiMember: ApiMember): Member {
 
 function transformApiExpense(apiExpense: ApiExpense): Expense {
   const individualAmounts: { [memberId: string]: number } = {}
-
-  if (apiExpense.individualExpenses) {
-    apiExpense.individualExpenses.forEach((ie) => {
-      individualAmounts[ie.memberId] = ie.amount
-    })
-  }
+  apiExpense.individualExpenses.forEach((ie) => {
+    individualAmounts[ie.memberId] = ie.amount
+  })
 
   return {
     id: apiExpense.id,
@@ -36,7 +33,6 @@ function transformApiExpense(apiExpense: ApiExpense): Expense {
     timestamp: new Date(apiExpense.timestamp),
   }
 }
-
 
 function transformApiDeposit(apiDeposit: ApiDeposit, members: Member[]): DepositRecord {
   const member = members.find((m) => m.id === apiDeposit.memberId)

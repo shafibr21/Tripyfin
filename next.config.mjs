@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Enable if you want to use the new experimental features
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
   // Ensure compatibility with Next.js 15
   typescript: {
     // Dangerously allow production builds to successfully complete even if
@@ -14,6 +18,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
