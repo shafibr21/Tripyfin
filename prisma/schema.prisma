@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,163 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js Models
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  accounts Account[]
-  sessions Session[]
-  lobbies  Lobby[]
-  members  Member[]
+  // Relations
+  ledLobbies     Lobby[]         @relation("LobbyLeader")
+  lobbyMembers   LobbyMember[]
+  transactions   Transaction[]
+  transactionDetails TransactionDetail[]
 
   @@map("users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
-
-// Application Models
 model Lobby {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  name           String
+  leaderId       Int      @map("leader_id")
+  totalBalance   Decimal  @default(0) @map("total_balance") @db.Decimal(10, 2)
+  initialDeposit Decimal  @default(0) @map("initial_deposit") @db.Decimal(10, 2)
+  status         String   @default("active")
+  inviteCode     String?  @unique @map("invite_code")
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  // Owner of the lobby
-  ownerId String
-  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  members  Member[]
-  expenses Expense[]
-  deposits Deposit[]
+  // Relations
+  leader       User            @relation("LobbyLeader", fields: [leaderId], references: [id], onDelete: Cascade)
+  members      LobbyMember[]
+  transactions Transaction[]
 
   @@map("lobbies")
 }
 
-model Member {
-  id                 String  @id @default(cuid())
-  name               String
-  isLeader           Boolean @default(false)
-  initialDeposit     Float   @default(0)
-  additionalDeposits Float   @default(0)
-  individualExpenses Float   @default(0)
+model LobbyMember {
+  id                Int      @id @default(autoincrement())
+  lobbyId           Int      @map("lobby_id")
+  userId            Int      @map("user_id")
+  individualBalance Decimal  @default(0) @map("individual_balance") @db.Decimal(10, 2)
+  totalDeposited    Decimal  @default(0) @map("total_deposited") @db.Decimal(10, 2)
+  joinedAt          DateTime @default(now()) @map("joined_at")
 
-  lobbyId String
-  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  // Relations
+  lobby Lobby @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Optional: Link to user account if member is a registered user
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  deposits               Deposit[]
-  expenseIndividualItems ExpenseIndividual[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("members")
+  @@unique([lobbyId, userId])
+  @@map("lobby_members")
 }
 
-model Expense {
-  id              String      @id @default(cuid())
-  type            ExpenseType
-  description     String
-  totalAmount     Float
-  perPersonAmount Float?
-  timestamp       DateTime    @default(now())
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  lobbyId     Int      @map("lobby_id")
+  createdBy   Int      @map("created_by")
+  type        String   // 'deposit', 'expense_equal', 'expense_individual'
+  description String
+  totalAmount Decimal  @map("total_amount") @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  lobbyId String
-  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  // Relations
+  lobby   Lobby               @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  creator User                @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  details TransactionDetail[]
 
-  individualExpenses ExpenseIndividual[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("expenses")
+  @@map("transactions")
 }
 
-model ExpenseIndividual {
-  id     String @id @default(cuid())
-  amount Float
+model TransactionDetail {
+  id            Int     @id @default(autoincrement())
+  transactionId Int     @map("transaction_id")
+  userId        Int     @map("user_id")
+  amount        Decimal @db.Decimal(10, 2)
 
-  expenseId String
-  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  // Relations
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@unique([expenseId, memberId])
-  @@map("expense_individuals")
-}
-
-model Deposit {
-  id          String      @id @default(cuid())
-  amount      Float
-  type        DepositType
-  description String?
-  timestamp   DateTime    @default(now())
-
-  lobbyId String
-  lobby   Lobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
-
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("deposits")
-}
-
-enum ExpenseType {
-  GROUP
-  INDIVIDUAL
-}
-
-enum DepositType {
-  INITIAL
-  ADDITIONAL
+  @@map("transaction_details")
 }

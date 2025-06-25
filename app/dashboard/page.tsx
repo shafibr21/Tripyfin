@@ -1,66 +1,61 @@
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
-import { getUserLobbies } from "@/lib/db/lobby"
-import { LobbyCard } from "@/components/dashboard/lobby-card"
-import { CreateLobbyForm } from "@/components/dashboard/create-lobby-form"
-import { UserMenu } from "@/components/dashboard/user-menu"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EmptyState } from "@/components/ui/empty-state"
-import { Users } from "lucide-react"
+import { prisma } from "@/lib/prisma"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { LobbyList } from "@/components/dashboard/lobby-list"
+import { CreateLobbyDialog } from "@/components/dashboard/create-lobby-dialog"
+import type { LobbyWithMembers } from "@/types"
 
-export default async function DashboardPage() {
+export default async function Dashboard() {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user?.id) {
+  if (!session) {
     redirect("/auth/signin")
   }
 
-  const lobbies = await getUserLobbies(session.user.id)
+  const userId = Number.parseInt(session.user.id)
+
+  // Get user's lobbies (both as leader and member)
+  const lobbiesData = await prisma.lobby.findMany({
+    where: {
+      OR: [{ leaderId: userId }, { members: { some: { userId } } }],
+    },
+    include: {
+      leader: true,
+      members: {
+        include: {
+          user: true,
+        },
+      },
+      _count: {
+        select: { members: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  // Convert Prisma Decimal fields to numbers
+  const lobbies: LobbyWithMembers[] = lobbiesData.map((lobby) => ({
+    ...lobby,
+    totalBalance: Number(lobby.totalBalance),
+    initialDeposit: Number(lobby.initialDeposit),
+    members: lobby.members.map((member) => ({
+      ...member,
+      individualBalance: Number(member.individualBalance),
+      totalDeposited: Number(member.totalDeposited),
+    })),
+  }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-6xl mx-auto p-4 space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {session.user.name || session.user.email}</p>
-          </div>
-          <UserMenu />
+    <div className="min-h-screen bg-gray-50">
+      <DashboardHeader user={session.user} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Your Travel Lobbies</h1>
+          <CreateLobbyDialog />
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Create Lobby Form */}
-          <div className="lg:col-span-1">
-            <CreateLobbyForm />
-          </div>
-
-          {/* Lobbies List */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Lobbies</CardTitle>
-                <CardDescription>Manage your travel expense lobbies</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {lobbies.length === 0 ? (
-                  <EmptyState
-                    icon={<Users className="h-8 w-8" />}
-                    title="No lobbies yet"
-                    description="Create your first lobby to start tracking travel expenses"
-                  />
-                ) : (
-                  <div className="grid gap-4">
-                    {lobbies.map((lobby) => (
-                      <LobbyCard key={lobby.id} lobby={lobby} isOwner={lobby.ownerId === session.user.id} />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <LobbyList lobbies={lobbies} currentUserId={userId} />
       </div>
     </div>
   )

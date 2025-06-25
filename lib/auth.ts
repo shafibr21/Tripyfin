@@ -1,67 +1,49 @@
 import type { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import GoogleProvider from "next-auth/providers/google"
-import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { prisma } from "@/lib/prisma"
+import bcrypt from "bcryptjs"
+import { prisma } from "./prisma"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
-    // Email/Password authentication
     CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        name: { label: "Name", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email) {
+        if (!credentials?.email || !credentials?.password) {
           return null
         }
 
-        // For demo purposes, we'll create or find user by email
-        // In production, you'd want proper password authentication
-        let user = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
 
-        if (!user && credentials.name) {
-          user = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.name,
-            },
-          })
+        if (!user) {
+          return null
         }
 
-        return user
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.passwordHash)
+
+        if (!isPasswordValid) {
+          return null
+        }
+
+        return {
+          id: user.id.toString(),
+          email: user.email,
+          name: user.name,
+        }
       },
     }),
-    // Google OAuth (optional)
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [
-          GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          }),
-        ]
-      : []),
-    // GitHub OAuth (optional)
-    ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
-      ? [
-          GitHubProvider({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
-          }),
-        ]
-      : []),
   ],
   session: {
     strategy: "jwt",
   },
   pages: {
     signIn: "/auth/signin",
+    signUp: "/auth/signup",
   },
   callbacks: {
     async jwt({ token, user }) {

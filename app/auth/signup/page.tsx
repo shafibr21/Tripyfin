@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +11,8 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
-export default function SignIn() {
+export default function SignUp() {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,20 +24,25 @@ export default function SignIn() {
     setIsLoading(true)
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
       })
 
-      if (result?.error) {
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Account created successfully",
+        })
+        router.push("/auth/signin")
+      } else {
+        const data = await response.json()
         toast({
           title: "Error",
-          description: "Invalid credentials",
+          description: data.message || "Something went wrong",
           variant: "destructive",
         })
-      } else {
-        router.push("/dashboard")
       }
     } catch (error) {
       toast({
@@ -54,11 +59,15 @@ export default function SignIn() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle>Create Account</CardTitle>
+          <CardDescription>Enter your details to create a new account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -74,13 +83,13 @@ export default function SignIn() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            {"Don't have an account? "}
-            <Link href="/auth/signup" className="text-blue-600 hover:underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/auth/signin" className="text-blue-600 hover:underline">
+              Sign in
             </Link>
           </div>
         </CardContent>
