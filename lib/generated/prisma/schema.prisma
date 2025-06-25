@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lobby {
+  id        String    @id @default(cuid())
+  name      String
+  members   Member[]
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+}
+
+model Member {
+  id                 String  @id @default(cuid())
+  name               String
+  isLeader           Boolean @default(false)
+  initialDeposit     Float   @default(0)
+  additionalDeposits Float   @default(0)
+  individualExpenses Float   @default(0)
+  lobbyId            String
+  lobby              Lobby   @relation(fields: [lobbyId], references: [id])
+
+  deposits Deposit[] // ← this line fixes the error!
+}
+
+model Expense {
+  id                String      @id @default(cuid())
+  type              ExpenseType
+  description       String
+  totalAmount       Float
+  perPersonAmount   Float?
+  individualAmounts Json? // Use JSON to map { memberId: amount }
+  timestamp         DateTime    @default(now())
+  lobbyId           String
+  lobby             Lobby       @relation(fields: [lobbyId], references: [id])
+}
+
+model Deposit {
+  id          String      @id @default(cuid())
+  memberId    String
+  member      Member      @relation(fields: [memberId], references: [id])
+  memberName  String
+  amount      Float
+  type        DepositType
+  description String?
+  timestamp   DateTime    @default(now())
+}
+
+enum ExpenseType {
+  group
+  individual
+}
+
+enum DepositType {
+  initial
+  additional
+}
