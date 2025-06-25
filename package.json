@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "lint": "next lint",
-    "start": "next start"
-  },
+  "generate": "prisma generate",
+  "build": "npm run generate && next build",
+  "dev": "next dev",
+  "lint": "next lint",
+  "start": "next start"
+},
+
   "dependencies": {
     "@auth/core": "latest",
     "@hookform/resolvers": "^3.9.1",
