@@ -12,7 +12,7 @@ const HomeHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="bg-white shadow-sm border-b px-4">
+    <header className="bg-white shadow-sm px-4 z-50">
       <div className="container mx-auto px-4 ">
         {/* Desktop and Mobile Header */}
         <div className="flex justify-between items-center ">
