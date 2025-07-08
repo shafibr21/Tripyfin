@@ -113,23 +113,29 @@ export default async function LobbyPage({ params }: LobbyPageProps) {
     <div className="min-h-screen bg-gray-50">
       <LobbyHeader lobby={lobby} isLeader={isLeader} />
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid gap-6 lg:grid-cols-3">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        {/* Mobile: Stack vertically, Desktop: Grid layout */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
+          
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="order-2 lg:order-1 lg:col-span-2 space-y-4 sm:space-y-6">
             <LobbyBalance lobby={lobby} memberBalances={memberBalances} />
 
             <Tabs defaultValue="transactions" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="transactions">Transactions</TabsTrigger>
-                <TabsTrigger value="members">Members</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
+                <TabsTrigger value="transactions" className="text-xs sm:text-sm">
+                  Transactions
+                </TabsTrigger>
+                <TabsTrigger value="members" className="text-xs sm:text-sm">
+                  Members
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="transactions" className="space-y-4">
+              <TabsContent value="transactions" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
                 <TransactionHistory transactions={lobby.transactions} />
               </TabsContent>
 
-              <TabsContent value="members" className="space-y-4">
+              <TabsContent value="members" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
                 <MembersList
                   members={memberBalances}
                   isLeader={isLeader}
@@ -141,10 +147,11 @@ export default async function LobbyPage({ params }: LobbyPageProps) {
             </Tabs>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Sidebar - Shows first on mobile, last on desktop */}
+          <div className="order-1 lg:order-2 space-y-4 sm:space-y-6">
             <ExpenseActions lobbyId={lobbyId} isLeader={isLeader} members={lobby.members} />
           </div>
+
         </div>
       </div>
     </div>

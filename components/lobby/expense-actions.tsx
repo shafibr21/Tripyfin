@@ -15,7 +15,7 @@ interface ExpenseActionsProps {
 
 export function ExpenseActions({ lobbyId, isLeader, members }: ExpenseActionsProps) {
   return (
-    <Card>
+    <Card className="sm:w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-lg">Quick Actions</CardTitle>
       </CardHeader>

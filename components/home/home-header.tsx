@@ -54,7 +54,7 @@ const HomeHeader = () => {
                   <User className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">{user?.name ?? 'Guest'}</span>
+              <span className="text-sm font-medium text-black">{user?.name ?? 'Guest'}</span>
             </div>
             <Button
               variant="outline"

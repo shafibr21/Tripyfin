@@ -60,7 +60,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   <User className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">{user?.name ?? "Guest"}</span>
+              <span className="text-sm text-black font-medium">{user?.name ?? "Guest"}</span>
             </div>
             <Button
               variant="outline"
