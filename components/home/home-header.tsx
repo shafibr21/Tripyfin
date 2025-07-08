@@ -1,27 +1,21 @@
 "use client"
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { LogOut, User, Menu, X } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
 
-import { signOut } from "next-auth/react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LogOut, Menu, User, X } from "lucide-react"
-import Link from "next/link"
-import React, { useState } from "react"
-
-interface DashboardHeaderProps {
-  user: {
-    name?: string | null
-    email?: string | null
-  }
-}
-
-export function DashboardHeader({ user }: DashboardHeaderProps) {
+const HomeHeader = () => {
+  const { data: session } = useSession()
+  const user = session?.user
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <header className="bg-white shadow-sm border-b px-4">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 ">
         {/* Desktop and Mobile Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center ">
           {/* Logo Section */}
           <div className="flex items-center space-x-2 md:space-x-4">
             <img src="/logo.svg" alt="TripyFin Logo" className="w-10 h-10 md:w-16 md:h-16" />
@@ -60,7 +54,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   <User className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">{user?.name ?? "Guest"}</span>
+              <span className="text-sm font-medium">{user?.name ?? 'Guest'}</span>
             </div>
             <Button
               variant="outline"
@@ -77,7 +71,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden bg-black my-4"
+            className="md:hidden bg-black my-3"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -121,7 +115,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                     <User className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-black">{user?.name ?? "Guest"}</span>
+                <span className="text-sm font-medium text-black">{user?.name ?? 'Guest'}</span>
               </div>
               <Button
                 variant="outline"
@@ -130,9 +124,9 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   signOut()
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 "
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 " />
                 <span>Sign Out</span>
               </Button>
             </div>
@@ -142,3 +136,5 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
     </header>
   )
 }
+
+export default HomeHeader

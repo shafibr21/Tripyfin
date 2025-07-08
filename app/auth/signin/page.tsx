@@ -37,7 +37,7 @@ export default function SignIn() {
           variant: "destructive",
         })
       } else {
-        router.push("/dashboard")
+        router.push("/home")
       }
     } catch (error) {
       toast({
