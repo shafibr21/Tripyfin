@@ -110,7 +110,9 @@ export default async function LobbyPage({ params }: LobbyPageProps) {
   })
 
   return (
+    
     <div className="min-h-screen bg-gray-50">
+      <hr className="opacity-20"/>
       <LobbyHeader lobby={lobby} isLeader={isLeader} />
 
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">

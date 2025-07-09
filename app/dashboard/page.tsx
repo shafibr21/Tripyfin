@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { LobbyList } from "@/components/dashboard/lobby-list"
 import { CreateLobbyDialog } from "@/components/dashboard/create-lobby-dialog"
 import type { LobbyWithMembers } from "@/types"
@@ -49,7 +48,6 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader user={session.user} />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-black">Your Travel Lobbies</h1>

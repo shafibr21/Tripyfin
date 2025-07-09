@@ -102,7 +102,7 @@ export function TransactionHistory({ transactions }: TransactionHistoryProps) {
             {transactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 hover:text-black transition-colors"
               >
                 <div className="flex items-center space-x-3">
                   {getTransactionIcon(transaction.type)}

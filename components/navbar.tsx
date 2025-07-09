@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { LogOut, User, Menu, X } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 
-const HomeHeader = () => {
+const NavBar = () => {
   const { data: session } = useSession()
   const user = session?.user
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -15,12 +15,12 @@ const HomeHeader = () => {
     <header className="bg-white shadow-sm px-4 z-50">
       <div className="container mx-auto px-4 ">
         {/* Desktop and Mobile Header */}
-        <div className="flex justify-between items-center ">
-          {/* Logo Section */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex justify-between items-center">
+          {/* Logo Section - Now clickable */}
+          <Link href="/" className="flex items-center space-x-2 md:space-x-4 cursor-pointer hover:opacity-80 transition-opacity">
             <img src="/logo.svg" alt="TripyFin Logo" className="w-10 h-10 md:w-16 md:h-16" />
             <h1 className="text-lg md:text-xl font-semibold text-black">TripyFin</h1>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-2">
@@ -137,4 +137,4 @@ const HomeHeader = () => {
   )
 }
 
-export default HomeHeader
+export default NavBar
