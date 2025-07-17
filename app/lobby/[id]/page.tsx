@@ -1,3 +1,4 @@
+'"use client"'
 import { getServerSession } from "next-auth"
 import { redirect, notFound } from "next/navigation"
 import { authOptions } from "@/lib/auth"
@@ -9,6 +10,7 @@ import { TransactionHistory } from "@/components/lobby/transaction-history"
 import { ExpenseActions } from "@/components/lobby/expense-actions"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { LobbyWithDetails } from "@/types"
+import { use } from "react"
 
 interface LobbyPageProps {
   params: {
@@ -109,8 +111,11 @@ export default async function LobbyPage({ params }: LobbyPageProps) {
     }
   })
 
+  if (!session || !lobbyData) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
+
   return (
-    
     <div className="min-h-screen bg-gray-50">
       <hr className="opacity-20"/>
       <LobbyHeader lobby={lobby} isLeader={isLeader} />

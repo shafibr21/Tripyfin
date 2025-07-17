@@ -63,7 +63,14 @@ const NavBar = () => {
               className="flex items-center space-x-2"
             >
               <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
+                {user ? (
+                <span>Sign Out</span>
+                ) : (
+                <span onClick={(e) => {
+                  e.preventDefault()
+                  window.location.href = '/api/auth/signin'
+                }}>Sign In</span>
+                )}
             </Button>
           </div>
 

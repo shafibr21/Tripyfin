@@ -60,7 +60,11 @@ export function LobbyList({ lobbies, currentUserId }: LobbyListProps) {
                 </span>
               </div>
               <Button asChild className="w-full">
-                <Link href={`/lobby/${lobby.id}`}>View Lobby</Link>
+                <Link
+                  href={`/lobby/${lobby.id}`}
+                >
+                  View Lobby
+                </Link>
               </Button>
             </div>
           </CardContent>

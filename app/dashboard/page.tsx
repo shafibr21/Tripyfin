@@ -53,6 +53,9 @@ export default async function Dashboard() {
           <h1 className="text-2xl font-bold text-black">Your Travel Lobbies</h1>
           <CreateLobbyDialog />
         </div>
+        {lobbies.length === 0 && (
+          <div className="text-gray-500 mb-6">Loading your lobbies...</div>
+        )}
         <LobbyList lobbies={lobbies} currentUserId={userId} />
       </div>
     </div>
