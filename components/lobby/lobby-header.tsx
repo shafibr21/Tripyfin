@@ -14,7 +14,7 @@ interface LobbyHeaderProps {
 export function LobbyHeader({ lobby, isLeader }: LobbyHeaderProps) {
   return (
     <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-2 ">
+      <div className="container mx-auto px-4 py-2 shadow-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-black font-semibold">
             <Button variant="ghost" size="sm" asChild>

@@ -13,7 +13,6 @@ const CTA = () => {
         </div>
         <div className="flex gap-4">
           <Button variant="default" size="lg" onClick={handlePrimary}>Create account</Button>
-          <Button variant="outline" size="lg">Talk to sales</Button>
         </div>
       </div>
     </section>

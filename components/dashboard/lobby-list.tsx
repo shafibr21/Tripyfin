@@ -1,13 +1,19 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Users, Crown, Calendar } from "lucide-react"
-import Link from "next/link"
-import type { LobbyWithMembers } from "@/types"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Users, Crown, Calendar } from "lucide-react";
+import Link from "next/link";
+import type { LobbyWithMembers } from "@/types";
 
 interface LobbyListProps {
-  lobbies: LobbyWithMembers[]
-  currentUserId: number
+  lobbies: any[];
+  currentUserId: number;
 }
 
 export function LobbyList({ lobbies, currentUserId }: LobbyListProps) {
@@ -17,10 +23,12 @@ export function LobbyList({ lobbies, currentUserId }: LobbyListProps) {
         <div className="text-gray-500 mb-4">
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p className="text-lg">No lobbies yet</p>
-          <p className="text-sm">Create your first travel lobby to get started!</p>
+          <p className="text-sm">
+            Create your first travel lobby to get started!
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -48,7 +56,11 @@ export function LobbyList({ lobbies, currentUserId }: LobbyListProps) {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Total Balance:</span>
-                <span className={`font-semibold ${lobby.totalBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+                <span
+                  className={`font-semibold ${
+                    lobby.totalBalance >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   ৳{lobby.totalBalance.toFixed(2)}
                 </span>
               </div>
@@ -60,16 +72,12 @@ export function LobbyList({ lobbies, currentUserId }: LobbyListProps) {
                 </span>
               </div>
               <Button asChild className="w-full">
-                <Link
-                  href={`/lobby/${lobby.id}`}
-                >
-                  View Lobby
-                </Link>
+                <Link href={`/lobby/${lobby.id}`}>View Lobby</Link>
               </Button>
             </div>
           </CardContent>
         </Card>
       ))}
     </div>
-  )
+  );
 }

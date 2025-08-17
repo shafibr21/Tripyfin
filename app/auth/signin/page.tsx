@@ -20,35 +20,37 @@ export default function SignIn() {
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  e.preventDefault()
+  setIsLoading(true)
 
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
+  try {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: true,
+      callbackUrl: "/home",
+    })
 
-      if (result?.error) {
-        toast({
-          title: "Error",
-          description: "Invalid credentials",
-          variant: "destructive",
-        })
-      } else {
-        router.push("/home")
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
+    // If we reach here with redirect: true, there was an error
+    if (result?.error) {
+      console.error("Sign in error:", result.error)
+      // toast({
+      //   title: "Error",
+      //   description: "Invalid credentials",
+      //   variant: "destructive",
+      // })
     }
+  } catch (error) {
+    console.error("Sign in error:", error)
+    // toast({
+    //   title: "Error",
+    //   description: "Something went wrong",
+    //   variant: "destructive",
+    // })
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
