@@ -6,8 +6,11 @@ import { Providers } from "@/components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import Footer from "@/components/footer"
 import NavBar from "@/components/navbar"
+import { Noto_Serif, Quicksand } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] })
+const noto = Noto_Serif({ subsets: ["latin"], weight: ["400","700","800"], variable: "--font-noto" });
+const quicksand = Quicksand({ subsets: ["latin"], weight: ["300","400","600"], variable: "--font-quick" });
+
 
 export const metadata: Metadata = {
   title: "TripyFin",
@@ -22,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${noto.variable} ${quicksand.variable}`}>
         <Providers>
           <NavBar />
           {children}
